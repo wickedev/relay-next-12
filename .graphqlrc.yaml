@@ -1,0 +1,7 @@
+schema: https://vrgo.kr/graphql
+extensions:
+  codegen:
+    generates:
+      ./schema/schema.graphql:
+        plugins:
+          - schema-ast

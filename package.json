@@ -3,20 +3,41 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "run-p dev:*",
+    "dev:relay": "relay-compiler --watch",
+    "dev:next": "next dev",
+    "build": "run-s build:relay build:next",
+    "build:relay": "relay-compiler",
+    "build:next": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "relay": "relay-compiler $@",
+    "schema": "exitzero graphql-codegen"
   },
   "dependencies": {
-    "next": "12.0.4",
-    "react": "17.0.2",
-    "react-dom": "17.0.2"
+    "graphql": "^15.7.2",
+    "http-proxy-middleware": "^2.0.1",
+    "next": "vrgoProject/next.js#relay-suspense",
+    "next-http-proxy-middleware": "^1.1.1",
+    "react": "^18.0.0-beta-149b420f6-20211119",
+    "react-dom": "^18.0.0-beta-149b420f6-20211119",
+    "react-relay": "^12.0.0"
   },
   "devDependencies": {
+    "@graphql-cli/codegen": "^2.1.5",
+    "@graphql-codegen/schema-ast": "^2.4.0",
+    "@types/express": "^4.17.13",
     "@types/react": "17.0.36",
+    "@types/react-relay": "^11.0.2",
+    "@types/relay-runtime": "^12.0.0",
+    "babel-plugin-relay": "^12.0.0",
     "eslint": "7.32.0",
     "eslint-config-next": "12.0.4",
+    "exitzero": "^1.0.1",
+    "npm-run-all": "^4.1.5",
+    "relay-compiler": "^12.0.0",
+    "relay-compiler-language-typescript": "^14.3.0",
+    "relay-config": "^12.0.0",
     "typescript": "4.5.2"
   }
 }

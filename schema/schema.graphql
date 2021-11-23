@@ -1,0 +1,506 @@
+"""Marks target object as extending part of the federated schema"""
+directive @extends on INTERFACE | OBJECT
+
+"""
+Marks target field as external meaning it will be resolved by federated schema
+"""
+directive @external on FIELD_DEFINITION
+
+directive @hasRole(role: Role!) on FIELD | FIELD_DEFINITION
+
+directive @isAuthenticated on FIELD | FIELD_DEFINITION
+
+"""Space separated list of primary keys needed to access federated object"""
+directive @key(fields: _FieldSet) on INTERFACE | OBJECT
+
+"""
+Specifies the base type field set that will be selectable by the gateway
+"""
+directive @provides(fields: _FieldSet) on FIELD_DEFINITION
+
+"""Specifies required input field set from the base type for a resolver"""
+directive @requires(fields: _FieldSet) on FIELD_DEFINITION
+
+"""강의 참여"""
+type Attendance implements Node {
+  class: Class!
+  classId: ID!
+  id: ID!
+  status: AttendanceState!
+  updateAt: LocalDateTime!
+  user: User!
+  userId: ID!
+}
+
+enum AttendanceState {
+  COMPLETED
+  NOT_ATTENDANCE
+  RESERVED
+}
+
+type Auth {
+  user: User!
+  userId: ID!
+}
+
+"""64-bit signed integer"""
+scalar BigInt
+
+enum Category {
+  DOCENT
+  GAME
+  NORMAL
+}
+
+"""강의"""
+type Class implements Node {
+  beginAt: LocalDateTime!
+  docent: Docent!
+  docentId: ID!
+  guide: Guide!
+  guideId: ID!
+  id: ID!
+  status: ClassStatus!
+  updateAt: LocalDateTime!
+}
+
+enum ClassStatus {
+  CANCEL
+  ON_PRGRESSS
+  RESERVED
+}
+
+"""컨텐츠들의 공통 인터페이스"""
+interface Content {
+  coverImage: String!
+  id: ID!
+  images: [String!]!
+  reviews: [Review!]!
+  title: String!
+  uploadedAt: LocalDateTime!
+}
+
+"""도슨트 사용자"""
+type Docent implements IUser & Node {
+  birth: LocalDate
+  contact: String
+  createAt: LocalDateTime!
+  deleteAt: LocalDateTime
+  email: String!
+  guides: [Guide!]!
+  id: ID!
+  introduceLong: String!
+  introduceShort: String!
+  isDefault: Boolean!
+  name: String!
+  profileImage: String
+  role: Role!
+  secessionReason: String
+  status: UserStatus!
+}
+
+"""A Java 8 ISO 8601 Duration"""
+scalar Duration
+
+interface Exhibition {
+  addressDetailName: String
+  addressStreetName: String
+  description: String!
+  id: ID!
+  name: String!
+}
+
+type FileObject {
+  bucket: String!
+  fqdn: Url
+  object: String!
+}
+
+"""도슨트가 진행하는 가이드"""
+type Guide implements Content & Node {
+  approvedAt: LocalDateTime
+
+  """참석 인원"""
+  attendance: Int!
+  beforeClosingAt: LocalTime
+
+  """도슨트 코맨트"""
+  comment: String!
+
+  """인당 비용"""
+  cost: Int!
+  coverImage: String!
+  description: String!
+  docent: Docent!
+  docentId: ID!
+  id: ID!
+  images: [String!]!
+  rating: Float!
+  rejectedAt: LocalDateTime
+  rejectedReason: String
+  reviews: [Review!]!
+  schedule: [LocalDate!]!
+  timeToFinish: Duration!
+  title: String!
+  uploadedAt: LocalDateTime!
+  video: Video
+  videoId: ID
+  vr: VR!
+  vrId: ID!
+}
+
+type GuidePage {
+  content: [Guide!]!
+  pageInfo: PageInfo!
+}
+
+"""사용자 공통 인터페이스, 도슨트 포함"""
+interface IUser {
+  birth: LocalDate
+  contact: String
+  createAt: LocalDateTime!
+  deleteAt: LocalDateTime
+  email: String!
+  id: ID!
+  isDefault: Boolean!
+  name: String!
+  profileImage: String
+  role: Role!
+  secessionReason: String
+  status: UserStatus!
+}
+
+"""A JSON scalar"""
+scalar JSON
+
+"""Local Date type"""
+scalar LocalDate
+
+"""Local Date Time type"""
+scalar LocalDateTime
+
+"""Local Time type"""
+scalar LocalTime
+
+enum MediaType {
+  FILE
+  YOUTUBE
+}
+
+"""VR 컨텐츠 퀴즈 미션"""
+type Mission implements Node {
+  id: ID!
+
+  """질문들"""
+  questions: [JSON!]!
+
+  """질문 갯수"""
+  questionsTotal: BigInt!
+
+  """VR 역참조"""
+  vr: VR!
+  vrId: ID!
+}
+
+"""박물관"""
+type Museum implements Exhibition & Node {
+  """상세 주소"""
+  addressDetailName: String
+
+  """전체 도로명 주소"""
+  addressStreetName: String
+
+  """연락처"""
+  contact: String
+  description: String!
+  externalLink: Url
+  id: ID!
+  name: String!
+}
+
+type MuseumPage {
+  content: [Museum!]!
+  pageInfo: PageInfo!
+}
+
+type Mutation {
+  approveGuide(id: ID!): Guide
+  changeGuide(attendance: Int!, beforeClosingAt: LocalTime!, comment: String!, cost: Int!, coverImage: String!, description: String!, guideId: ID!, images: [String!]!, irregular: [LocalDateTime!], regular: ScheduleInput, timeToFinish: Duration!, title: String!, videoId: ID!, vrId: ID!): Guide!
+
+  """유저 정보 수정"""
+  changeUserInfo(birth: LocalDate!, contact: String!, email: String!, password: String, profileImage: Upload, userID: ID!): User!
+  deleteGuide(id: ID!): ID!
+  deletePopup(popupId: ID!): ID!
+  deleteQuestion(questionId: ID!): ID!
+  deleteVR(id: ID!): ID!
+  editPopup(json: String!, popupId: ID!): Popup!
+  editQuestion(json: String!, questionId: ID!): Question!
+
+  """가이드 프로그램 시작, zoom 링크 응답"""
+  guideProgramStart(guideId: ID!, reserve: ReserveInput!): Url!
+
+  """가이드 등록"""
+  guideRegistration(attendance: Int!, beforeClosingAt: LocalTime!, comment: String!, cost: Int!, coverImage: Upload!, description: String!, docentId: ID!, images: [Upload!]!, irregular: [LocalDateTime!], regular: ScheduleInput, timeToFinish: Duration!, title: String!, videoId: ID, vrId: ID!): Guide!
+  makeWaitingGuide(id: ID!): Guide
+  payForGuide(attendance: Int!, guideId: ID!, payId: Int!): Boolean!
+  quizSolved(correct: Int!, duration: Duration!, total: Int!, vrId: ID!): Progress
+  registerMuseum(addressDetailName: String, addressStreetName: String, description: String!, externalLink: Url, name: String!): Museum!
+  registerPopups(json: [String!]!, vrId: ID!): [Popup!]!
+  registerQuestions(json: [String!]!, vrId: ID!): Mission!
+  registerVR(category: Category!, coverImage: Upload!, images: [Upload!]!, museumId: ID!, sid: String!, title: String!): VR!
+  rejectGuide(id: ID!, reason: String!): Guide
+
+  """회원 탈퇴 요청, 유저 정보는 1년간 보관"""
+  secessionRequest(reason: String!): Boolean!
+
+  """회원 삭제"""
+  secessionUser(id: ID!): ID
+
+  """회원들 삭제"""
+  secessionUsers(ids: [ID!]!): [ID!]!
+  signIn(email: String!, password: String!): Auth
+  signOut: Boolean!
+  signUp(birth: LocalDate, contact: String, email: String!, name: String!, password: String!, profileImage: Upload): User!
+  signUpDecent(birth: LocalDate, contact: String, email: String!, introduceLong: String!, introduceShort: String!, name: String!, password: String!, profileImage: String): Docent!
+  upload(file: Upload!): FileObject!
+  uploads(files: [Upload!]!): [FileObject!]!
+  userToDocent(id: ID!, introduceLong: String!, introduceShort: String!): Docent!
+  writeReview(comment: String, contentId: ID!, rating: Int!): Review!
+}
+
+"""Relay 엔터티 인터페이스"""
+interface Node {
+  id: ID!
+}
+
+type PageInfo {
+  hasNext: Boolean!
+  hasPrevious: Boolean!
+  isFirst: Boolean!
+  isLast: Boolean!
+  number: Int!
+  size: Int!
+  totalElements: BigInt!
+  totalPages: Int!
+}
+
+"""결제"""
+type Payment implements Node {
+  id: ID!
+}
+
+"""VR 팝업"""
+type Popup {
+  id: ID!
+  value: JSON!
+  vr: VR!
+  vrId: ID!
+}
+
+type PopupPage {
+  content: [Popup!]!
+  pageInfo: PageInfo!
+}
+
+"""미션 진행도"""
+type Progress implements Node {
+  correct: Int!
+  createAt: LocalDateTime!
+  duration: Duration!
+  id: ID!
+
+  """미션"""
+  mission: Mission!
+  missionId: ID!
+
+  """정답률"""
+  percent: Int!
+  total: Int!
+  userId: ID!
+
+  """VR"""
+  vr: VR!
+  vrId: ID!
+}
+
+type Query {
+  _service: _Service
+  adminProtectTest: Int!
+
+  """해당 가이드의 날짜에 대해 예약 가능한 시간들"""
+  getReservableTimes(date: LocalDate!, guideId: ID!): [Reserve!]!
+  guide(id: ID!): Guide
+
+  """가이드 페이지네이션"""
+  guidesPagination(page: Int!, search: String, size: Int!): GuidePage!
+  isNotDuplicateEmail(email: String!): Boolean!
+  museums(limit: Int): [Museum!]!
+  museumsPagination(page: Int!, size: Int!): MuseumPage!
+
+  """내가 참여한 강의"""
+  myAttendances: [Attendance!]!
+  myAttendancesLesson: [Attendance!]!
+  myClasses: [Class!]!
+  myGuides: [Guide!]!
+
+  """내 정보, 만약 인증이 되어 있지 않다면 null 리턴"""
+  myInfo: User
+  myMissons: [Mission!]!
+
+  """내 문제 진행"""
+  myProgress: [Progress!]!
+  newestContents: [Content!]!
+  newestGuides(limit: Int!): [Guide!]!
+  newestMissionVRs(limit: Int): [VR!]!
+  newestVRs(limit: Int): [VR!]!
+  newestVideos(limit: Int!): [Video!]!
+  node(id: ID!): Node
+  popupsPagination(page: Int!, size: Int!): PopupPage!
+  protectTest: Int!
+  questionsPagination(page: Int!, size: Int!): QuestionPage!
+  secessionAtByUserEmail(email: String!): LocalDateTime
+  test: Int!
+  testId(id: ID!): ID!
+  testJson(json: String!): JSON!
+  usersPagination(page: Int!, role: Role, search: String, size: Int!): UserPage!
+  vr(id: ID!): VR
+  vrs(limit: Int): [VR!]!
+  vrsPagination(page: Int!, size: Int!): VRPage!
+}
+
+"""VR 미션 질문지"""
+type Question {
+  id: ID!
+  mission: Mission!
+  missionId: ID!
+  value: JSON!
+}
+
+type QuestionPage {
+  content: [Question!]!
+  pageInfo: PageInfo!
+}
+
+"""getReservableTimes 쿼리로 조회했을 때 사용자가 예약 가능한 시간들"""
+type Reserve {
+  costPerGuest: Int!
+  endAt: LocalDateTime!
+  startAt: LocalDateTime!
+}
+
+"""getReservableTimes 쿼리로 조회했을 때 사용자가 예약 가능한 시간들"""
+input ReserveInput {
+  costPerGuest: Int!
+  endAt: LocalDateTime!
+  startAt: LocalDateTime!
+}
+
+"""컨텐츠 리뷰"""
+type Review implements Node {
+  comment: String
+  content: Content!
+  contentId: ID!
+  createAt: LocalDateTime!
+  id: ID!
+  rating: Int!
+  user: User!
+  userId: ID!
+}
+
+enum Role {
+  ADMIN
+  DOCENT
+  USER
+}
+
+input ScheduleInput {
+  dayOfWeek: SetScalar!
+  startAt: LocalTime!
+}
+
+"""Collection of elements that does not support duplicate elements"""
+scalar SetScalar
+
+"""정산현황"""
+type Settlement implements Node {
+  class: Class!
+  classId: ID!
+  id: ID!
+}
+
+"""A file part in a multipart request"""
+scalar Upload
+
+"""A Url scalar"""
+scalar Url
+
+"""사용자"""
+type User implements IUser & Node {
+  birth: LocalDate
+  contact: String
+  createAt: LocalDateTime!
+  deleteAt: LocalDateTime
+  email: String!
+  id: ID!
+  isDefault: Boolean!
+  name: String!
+  profileImage: String
+  role: Role!
+  secessionReason: String
+  status: UserStatus!
+}
+
+type UserPage {
+  content: [User!]!
+  pageInfo: PageInfo!
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+}
+
+"""VR 컨텐츠에 대한 sid 참조"""
+type VR implements Content & Node {
+  category: Category!
+  coverImage: String!
+  id: ID!
+  images: [String!]!
+
+  """미션이 있을 경우 미션 VR"""
+  mission: Mission
+  museum: Museum!
+  museumId: ID!
+
+  """VR 투어 팝업"""
+  popups: [JSON!]!
+  reviews: [Review!]!
+  sid: String!
+  title: String!
+  uploadedAt: LocalDateTime!
+}
+
+type VRPage {
+  content: [VR!]!
+  pageInfo: PageInfo!
+}
+
+"""도슨트가 진행한 가이드 비디오"""
+type Video implements Content & Node {
+  coverImage: String!
+  duration: Duration!
+  id: ID!
+  images: [String!]!
+  link: Url!
+  reviews: [Review!]!
+  title: String!
+  type: MediaType!
+  uploadedAt: LocalDateTime!
+}
+
+"""Federation type representing set of fields"""
+scalar _FieldSet
+
+type _Service {
+  sdl: String!
+}
