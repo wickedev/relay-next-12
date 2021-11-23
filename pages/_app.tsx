@@ -1,15 +1,15 @@
 import type { AppProps } from "next/app";
-import { RelayEnvironmentProvider } from "react-relay";
-import { createEnvironment } from "~/lib/RelayEnvironment";
-import { ErrorBoundary } from "~/components/ErrorBoundary";
-import "../styles/globals.css";
 import { Suspense } from "react";
-
-global = globalThis; //<- this should be enough
+import { RelayEnvironmentProvider } from "react-relay";
+import { ErrorBoundary } from "~/components/ErrorBoundary";
+import { createEnvironment } from "~/lib/RelayEnvironment";
+import "../styles/globals.css";
 
 function MyApp({ Component, pageProps }: AppProps) {
+  const env = createEnvironment({});
+
   return (
-    <RelayEnvironmentProvider environment={createEnvironment({})}>
+    <RelayEnvironmentProvider environment={env}>
       <ErrorBoundary>
         <Suspense fallback="loading...">
           <Component {...pageProps} />
