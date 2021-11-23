@@ -23,11 +23,9 @@ export default function handler(
   req: NextApiRequest,
   res: NextApiResponse<null>
 ) {
-  isDevelopment
-    ? proxyHandler(req as any, res as any, () => {
-        /* no op*/
-      })
-    : res.status(404).send(null);
+  proxyHandler(req as any, res as any, () => {
+    /* no op*/
+  });
 }
 
 export const config = {
