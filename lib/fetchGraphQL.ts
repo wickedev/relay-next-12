@@ -65,7 +65,9 @@ export function fetchGraphQL(
     });
   }
 
-  return fetch("http://localhost:3000/api/graphql", requestInit)
+  const isServer = typeof window === "undefined";
+
+  return fetch(isServer ? `http://localhost:3000/api/graphql`: `/api/graphql`, requestInit)
     .then(async (response) => {
       if (response.status === 200) {
         return await response.json();

@@ -5,7 +5,7 @@ import { ErrorBoundary } from "~/components/ErrorBoundary";
 import { createEnvironment } from "~/lib/RelayEnvironment";
 import "../styles/globals.css";
 
-function MyApp({ Component, pageProps }: AppProps) {
+function AppComponent({ Component, pageProps }: AppProps) {
   const env = createEnvironment({});
 
   return (
@@ -18,4 +18,4 @@ function MyApp({ Component, pageProps }: AppProps) {
     </RelayEnvironmentProvider>
   );
 }
-export default MyApp;
+export default AppComponent;

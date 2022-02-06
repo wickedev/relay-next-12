@@ -28,7 +28,7 @@ export function createEnvironment(records: {}): Environment {
     gcReleaseBufferSize: 10,
   });
 
-  const isServer = typeof global === "undefined";
+  const isServer = typeof window === "undefined";
 
   if (isServer) {
     return new Environment({

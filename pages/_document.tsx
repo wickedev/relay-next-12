@@ -1,6 +1,4 @@
-import { Head, Html, Main, NextScript } from "next/document";
-
-global = globalThis; //<- this should be enough
+import { DocumentContext, Head, Html, Main, NextScript } from "next/document";
 
 export default function Document() {
   return (
